@@ -1,0 +1,208 @@
+@import "tailwindcss";
+
+/* `dark:` classes follow the theme toggle (data-theme="dark" on <html>), not the OS setting. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  /* next/font exposes --font-jakarta / --font-outfit / --font-open-sans (see app/layout.tsx). */
+  --font-sans: var(--font-jakarta), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-outfit), var(--font-jakarta), system-ui, sans-serif;
+  --font-serif: var(--font-outfit), var(--font-jakarta), system-ui, sans-serif;
+  --font-body: var(--font-open-sans), system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-gold: var(--gold);
+
+  /* Aliases used by the storefront/admin components migrated from the old Vite project */
+  --color-bg-light: var(--background);
+  --color-card-bg: var(--card);
+  --color-text-dark: var(--foreground);
+  --color-muted: var(--muted-foreground);
+  --color-accent-text: var(--accent);
+  --color-primary-hover: var(--accent);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-gold-fill: var(--gold-fill);
+}
+
+@layer base {
+  /* LIGHT (default): cream + maroon + gold */
+  :root {
+    --background: #FAF6EF;
+    --foreground: #1C1214;
+    --card: #F2E8DB;
+    --card-foreground: #1C1214;
+    --primary: #581825;
+    --primary-foreground: #FAF6EF;
+    --accent: #80561C;            /* gold darkened to pass WCAG AA (4.5:1) as TEXT on cream and with white text on it (#CFA365 is used for fills) */
+    --accent-foreground: #FFFFFF;
+    --muted-foreground: #615053;
+    --border: #E5D5C3;
+    --gold: #80561C;
+    --gold-soft: rgba(207, 163, 101, 0.22);
+    --on-gold: #FFFFFF;
+    --gold-fill: #CFA365;
+    --greeer: #166534;
+    --bar: #581825;
+    --stats-bg: #F2E8DB;
+    --danger: #D92626;
+    --success: #166534;
+    color-scheme: light;
+  }
+
+  /* DARK: the original green + gold look */
+  [data-theme="dark"] {
+    --background: #08100d;
+    --foreground: #f4ede2;
+    --card: #0f1c18;
+    --card-foreground: #f4ede2;
+    --primary: #c5a059;
+    --primary-foreground: #08100d;
+    --accent: #d4af37;
+    --accent-foreground: #08100d;
+    --muted-foreground: #a3b8ad;
+    --border: #1b302a;
+    --gold: #c5a059;
+    --gold-soft: rgba(217, 184, 115, 0.13);
+    --on-gold: #10201a;
+    --gold-fill: #d9b873;
+    --greeer: #116149;
+    --bar: #116149;
+    --stats-bg: #0d1915;
+    --danger: #f87171;
+    --success: #34d399;
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    font-family: var(--font-sans);
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+  }
+  p, li, summary {
+    font-family: var(--font-body);
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--background);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--gold);
+    border-radius: 4px;
+  }
+}
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .animate-fadeIn {
+    animation: fadeIn 0.25s ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes statsFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stats-item {
+  opacity: 0;
+  animation: statsFadeUp 0.6s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stats-item {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+
+/* First-visit splash is skipped for returning visitors (flag set by the inline script in app/layout.tsx). */
+html[data-splash-seen] #app-splash {
+  display: none;
+}
+
+/* Theme toggle icons: pure CSS, so there is no icon flash before JavaScript loads. */
+.theme-sun { display: none; }
+[data-theme="dark"] .theme-sun { display: block; }
+[data-theme="dark"] .theme-moon { display: none; }
+
+/* Safety net: the splash always leaves after 2.5 s, even if the start-up never finishes. */
+#app-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  animation: splash-out 0.3s ease 2.5s forwards;
+}
+@keyframes splash-out {
+  to { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+/* A modal / sheet marked data-scroll-lock stops the page behind it from scrolling (no JavaScript needed). */
+body:has([data-scroll-lock]) {
+  overflow: hidden;
+}
+
+/* Gold text shimmer for the loader title */
+.animate-gold-shimmer {
+  background: linear-gradient(90deg, var(--gold) 0%, var(--gold-fill) 50%, var(--gold) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gold-shimmer 3s linear infinite;
+}
+@keyframes gold-shimmer {
+  to { background-position: -200% center; }
+}
+
+/* One content width for the whole storefront (header, sections, pages, footer), so every left and right edge lines up. */
+@utility page-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1400px;
+  padding-inline: 0.7rem;
+  @media (min-width: 40rem) { padding-inline: 1.5rem; }
+  @media (min-width: 64rem) { padding-inline: 2rem; }
+}
